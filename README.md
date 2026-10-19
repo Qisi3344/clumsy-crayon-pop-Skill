@@ -14,6 +14,7 @@
 | 02 | 《BOO!》万圣节小幽灵和南瓜灯 | 迷幻 60s |
 | 03 | 《叮咚！》午夜便利店 | 霓虹 |
 | 04 | 《嘶溜～》深夜杯面 | 沃霍尔 |
+| 05 | 《RRRING!》响个不停的拨盘电话 | 利希滕斯坦 |
 
 ![No.01 花花](examples/01_huahua_s5.png)
 
@@ -22,6 +23,8 @@
 ![No.03 叮咚！](examples/03_konbini_s4.png)
 
 ![No.04 嘶溜～](examples/04_noodles_s1.png)
+
+![No.05 RRRING!](examples/05_ring_s1.png)
 
 ## 系列规格
 
@@ -35,6 +38,7 @@ python works/01-huahua/huahua.py 5
 python works/02-boo/boo.py 3
 python works/03-konbini/konbini.py 4
 python works/04-noodles/noodles.py 1
+python works/05-ring/ring.py 1
 ```
 
 首次运行会自动下载拟声词用的 ZCOOL KuaiLe 字体（OFL）到 `fonts/`，字体不进仓库。
