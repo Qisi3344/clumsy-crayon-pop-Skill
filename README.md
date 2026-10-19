@@ -15,6 +15,7 @@
 | 03 | 《叮咚！》午夜便利店 | 霓虹 |
 | 04 | 《嘶溜～》深夜杯面 | 沃霍尔 |
 | 05 | 《RRRING!》响个不停的拨盘电话 | 利希滕斯坦 |
+| 06 | 《喵～》月份牌上的白猫女神 | 复古 70s |
 
 ![No.01 花花](examples/01_huahua_s5.png)
 
@@ -25,6 +26,8 @@
 ![No.04 嘶溜～](examples/04_noodles_s1.png)
 
 ![No.05 RRRING!](examples/05_ring_s1.png)
+
+![No.06 喵～](examples/06_whitecat_s1.png)
 
 ## 系列规格
 
