@@ -11,8 +11,11 @@
 | No. | 作品 | 配色 |
 |---|---|---|
 | 01 | 《喵？》玳瑁猫花花 | 复古 70s |
+| 02 | 《BOO!》万圣节小幽灵和南瓜灯 | 迷幻 60s |
 
 ![No.01 花花](examples/01_huahua_s5.png)
+
+![No.02 BOO!](examples/02_boo_s3.png)
 
 ## 系列规格
 
@@ -23,6 +26,7 @@
 ```bash
 pip install numpy pillow scipy
 python works/01-huahua/huahua.py 5
+python works/02-boo/boo.py 3
 ```
 
 首次运行会自动下载拟声词用的 ZCOOL KuaiLe 字体（OFL）到 `fonts/`，字体不进仓库。
