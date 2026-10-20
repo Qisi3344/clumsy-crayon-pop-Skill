@@ -244,3 +244,95 @@ def hand_text(cv, txt, x, base, h, col, shadow, r, w=(5, 7)):
             stroke_path(cv, P, col, w=w, passes=1)
         x += wid + h * 0.22
 
+
+
+# ---------------------------------------------------------- 手感基准（全系列统一，谁画都用这一套）
+# 从 No.01–06 实际用过的参数里取的中位数。画的时候按部件大小选一档，
+# 只在确有理由时改一两个数（写在注释里），别整套重调。
+WOBBLE = {'bg': 14, 'body': 6, 'part': 3, 'small': 2, 'dot': 1}        # blob 歪多少
+FILL = {
+    'bg':    dict(density=1.2, coverage=0.92, passes=3, width=(3, 6), length=(25, 70), overflow=0.12),  # 背景大团
+    'body':  dict(density=1.5, coverage=1.08, passes=3, width=(3, 6), length=(30, 80), overflow=0.05),  # 主体大色块
+    'part':  dict(density=2.0, coverage=1.20, passes=3, width=(3, 6), length=(18, 55), overflow=0),     # 耳朵、衣服、叶子
+    'small': dict(density=2.6, coverage=1.35, passes=2, width=(2, 4), length=(18, 55), overflow=0),     # 小物件、眼白、标签
+    'dot':   dict(density=3.5, coverage=1.50, passes=3, width=(3, 5), length=(18, 55), overflow=0),     # 瞳孔、小洞、实心点
+}
+LINE = {
+    'main':   dict(w=(5, 10), passes=2, gap=0.04),   # 主体外轮廓
+    'part':   dict(w=(4, 7),  passes=2, gap=0.03),   # 部件轮廓
+    'detail': dict(w=(3, 5),  passes=1, gap=0.0),    # 花纹、胡子、小线
+    'fine':   dict(w=(2, 3),  passes=1, gap=0.0),    # 最细：叶脉、高光边
+}
+HALFTONE = dict(cell=12, angle=0.35, size=(0.3, 0.7))   # 网点：每张最多两处
+MIS = (3, -3)                                            # 套色偏移，只给背景/一个色版
+TEXT = dict(size=(100, 150), rot=(-8, 8), wobble=2.5, dilate=3, shadow=(6, 6))  # 中文拟声词
+MARGIN = 40                                              # 四周至少露这么多奶油纸
+
+def std_fill(cv, mask, color, kind='body', angle=0.6, **kw):
+    """按基准档涂色：std_fill(cv, m, red, 'body', angle=1.1)"""
+    p = dict(FILL[kind]); p.update(kw)
+    return crayon_fill(cv, mask, color, angle=angle, **p)
+
+def std_line(cv, C, color, kind='main', **kw):
+    p = dict(LINE[kind]); p.update(kw)
+    if kw.get('closed', True) is False or kind in ('detail', 'fine'):
+        p.pop('gap', None); return stroke_path(cv, C, color, w=p['w'], passes=p['passes'], shift=p.get('shift', (0, 0)))
+    return crayon_line(cv, C, color, **p)
+
+def sign_date(cv, txt, ink, accent, r):
+    """右下角日期签，位置大小全系列固定"""
+    hand_text(cv, txt, 668, 948, 30, ink, accent, r, w=(5, 7))
+
+
+# ---------------------------------------------------------- 英文拟声词（推荐）：手画大写字母
+def _arc(cx, cy, rx, ry, a0, a1, n=24):
+    t = np.linspace(a0, a1, n); return list(zip(cx + rx * np.cos(t), cy + ry * np.sin(t)))
+LETTERS = {  # 单位方格，y 向下；(笔画列表, 宽度比例)
+    'A': ([[(0, 1), (0.5, 0), (1, 1)], [(0.22, 0.62), (0.78, 0.62)]], 0.8),
+    'B': ([[(0, 1), (0, 0), (0.55, 0), (0.82, 0.12), (0.8, 0.36), (0.5, 0.48), (0.02, 0.48)],
+           [(0.5, 0.48), (0.88, 0.6), (0.9, 0.86), (0.6, 1), (0, 1)]], 0.72),
+    'C': ([_arc(0.55, 0.5, 0.5, 0.5, -0.7, -2 * np.pi + 0.7)], 0.78),
+    'D': ([[(0, 0), (0, 1)], [(0, 0), (0.45, 0)] + _arc(0.45, 0.5, 0.45, 0.5, -np.pi / 2, np.pi / 2, 18) + [(0, 1)]], 0.76),
+    'E': ([[(0.85, 0), (0, 0), (0, 1), (0.88, 1)], [(0, 0.5), (0.7, 0.5)]], 0.66),
+    'G': ([_arc(0.5, 0.5, 0.5, 0.5, -0.75, -2 * np.pi + 0.35, 30) + [(0.97, 0.58), (0.58, 0.58)]], 0.8),
+    'H': ([[(0, 0), (0, 1)], [(1, 0), (1, 1)], [(0, 0.5), (1, 0.5)]], 0.76),
+    'I': ([[(0.5, 0), (0.5, 1)]], 0.3),
+    'K': ([[(0, 0), (0, 1)], [(0.9, 0), (0.05, 0.58)], [(0.32, 0.4), (0.95, 1)]], 0.72),
+    'L': ([[(0, 0), (0, 1), (0.82, 1)]], 0.6),
+    'M': ([[(0, 1), (0.05, 0), (0.5, 0.62), (0.95, 0), (1, 1)]], 0.92),
+    'N': ([[(0, 1), (0, 0), (1, 1), (1, 0)]], 0.78),
+    'O': ([_arc(0.5, 0.5, 0.5, 0.5, 0, 2 * np.pi, 32)], 0.82),
+    'P': ([[(0, 1), (0, 0), (0.6, 0), (0.9, 0.15), (0.9, 0.38), (0.6, 0.52), (0.02, 0.52)]], 0.7),
+    'R': ([[(0, 1), (0, 0), (0.6, 0), (0.88, 0.14), (0.88, 0.36), (0.6, 0.5), (0.02, 0.5)], [(0.42, 0.5), (0.92, 1)]], 0.72),
+    'S': ([[(0.9, 0.12), (0.6, 0), (0.25, 0.02), (0.05, 0.2), (0.15, 0.42), (0.85, 0.58), (0.95, 0.8), (0.72, 1), (0.3, 1), (0.05, 0.88)]], 0.7),
+    'T': ([[(0, 0), (1, 0.02)], [(0.5, 0.01), (0.48, 1)]], 0.76),
+    'U': ([[(0, 0), (0, 0.65)] + _arc(0.5, 0.65, 0.5, 0.35, np.pi, 0, 16) + [(1, 0)]], 0.78),
+    'W': ([[(0, 0), (0.22, 1), (0.5, 0.35), (0.78, 1), (1, 0)]], 1.0),
+    'Y': ([[(0, 0), (0.5, 0.52), (1, 0)], [(0.5, 0.52), (0.5, 1)]], 0.76),
+    'Z': ([[(0.02, 0), (0.95, 0.02), (0.05, 1), (1, 0.98)]], 0.72),
+    '!': ([[(0.5, 0), (0.5, 0.66)]], 0.3),
+    '?': ([[(0.08, 0.22), (0.3, 0.02), (0.72, 0.02), (0.92, 0.22), (0.85, 0.42), (0.5, 0.55), (0.5, 0.7)]], 0.66),
+}
+def hand_word(cv, txt, x, base, h, fill, ink, r, w=None, gap=None, wave=10, tilt=0.04):
+    """英文拟声词：黑粗线打底 + 彩色细线压上 + 右下错位黑影（同 No.05 RRRING!）。
+    h=字高(推荐 110–160)，fill=字芯颜色(点睛色)，ink=最深色。返回最后的 x。"""
+    k = h / 120.0
+    w = w or (int(32 * k), int(36 * k)); wi = (int(17 * k), int(21 * k)); sh = int(8 * k)
+    gap = gap if gap is not None else 26 * k
+    n = len(txt)
+    for i, ch in enumerate(txt.upper()):
+        if ch == ' ': x += h * 0.4; continue
+        strokes, wr = LETTERS[ch]
+        w_ = h * wr; rot = r.normal(0, 0.06) + tilt * (i - n / 2); hh = h * (1 + 0.04 * (i - n / 2))
+        ca, sa = math.cos(rot), math.sin(rot); b = base + wave * math.sin(i * 1.1)
+        def T(p): u, v = p[0] * w_, (p[1] - 1) * hh; return (x + u * ca - v * sa, b + u * sa + v * ca)
+        for st in strokes:
+            P = dens([T(p) for p in st]); P = P + periodic_noise(len(P), r, 1.2)[:, None]
+            stroke_path(cv, P + sh, ink, w=(w[0] - 2, w[1] - 2), passes=1)
+            stroke_path(cv, P, ink, w=w, passes=1)
+            stroke_path(cv, P, fill, w=wi, passes=2)
+        if ch in '!?':
+            d = T((0.5, 0.92)); dot = blob(ellipse_pts(d[0], d[1], 15 * k, 15 * k, 6, 0, r, 0.05), r, wobble=0.8, n=60)
+            crayon_fill(cv, mask_of(dot), ink, density=4, coverage=1.6, passes=2, overflow=0)
+        x += w_ + gap
+    return x
