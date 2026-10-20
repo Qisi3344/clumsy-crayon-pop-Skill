@@ -71,12 +71,11 @@
 - 每个颜色都要看得见，别让某个色只剩几粒。
 - 不自己加渐变、光晕、烟雾、做旧发黄。
 
-## 5. 拟声词（必有）+ 小涂鸦（可选）
+## 5. 拟声词（必有，首选英文）+ 小涂鸦（可选）
 
-- 每张必有一个拟声词：喵？ POP! BANG! 汪！ 啵！……只要拟声词，不写句子、不写对白，也不加对话框。
-- 拟声词直接用重压蜡笔压在纸上，配一道错位的深色影子。
-- 中文用 `text_mask()`（字体只当骨架，会扭歪），再 `ndi.binary_dilation` 加粗 2–3 圈，不然笔画散开认不出。
-- 英文**手画字母**（ZCOOL KuaiLe 的拉丁字母是空心的）：一笔笔 `stroke_path`，黑粗线打底 + 彩色细线压上 + 错位黑影，见 `works/05-ring/ring.py` 的 `letters()`。
+- 每张必有一个拟声词：POP! BOO! MWAH! WOOF! ZZZ……只要拟声词，不写句子、不写对白，也不加对话框。
+- **首选英文**：手画字母更有波普海报味，全系列也更统一。用 `hand_word(cv, 'POP!', x, base, 120, 点睛色, 最深色, r)`——黑粗线打底 + 彩色细线压上 + 右下错位黑影，字高 110–160，轻微波浪排列。支持 A B C D E G H I K L M N O P R S T U W Y Z ! ?，缺的字母照 `LETTERS` 的格式补。
+- 中文只在题材离不开中文时用（比如中文招牌、春联）：`text_mask()` 当骨架，再 `ndi.binary_dilation` 加粗 3 圈，配错位深色影子。
 - 星星、箭头、圈圈、乱线等小涂鸦可选。主体复杂就少放，不要四个角各贴一颗星。
 
 ## 6. 系列规格（每张都一样，放一起才像一套）
@@ -91,6 +90,22 @@
 
 随机只负责手感，设计还是要自己拿主意。
 
+## 6.5 手感基准（统一手感，谁画都一样）
+
+不同人画同一个 Skill，最容易跑偏的是手感：歪多少、线多粗、涂多满。引擎里把这些定死成几档，**直接用档位，别自己从头调**：
+
+| 档位 | `blob` 歪度 | 涂色 `std_fill` | 轮廓 `std_line` |
+|---|---|---|---|
+| `bg` 背景团 | 14 | density 1.2 · coverage 0.92 · 3遍 · 出界 0.12 · 错版 `MIS` | 不描边 |
+| `body` 主体大块 | 6 | 1.5 · 1.08 · 3遍 · 出界 0.05 | `main` 5–10px ×2遍 |
+| `part` 耳朵/衣服/叶子 | 3 | 2.0 · 1.20 · 3遍 · 不出界 | `part` 4–7px |
+| `small` 小件/眼白 | 2 | 2.6 · 1.35 · 2遍 · 笔宽 2–4 | `detail` 3–5px |
+| `dot` 瞳孔/实心点 | 1 | 3.5 · 1.50 · 3遍 | `fine` 2–3px（叶脉、高光边） |
+
+- 其余固定值：网点 `cell=12`、大小 0.3–0.7、每张最多两处；套色偏移 `MIS=(3,-3)`；英文拟声词 `hand_word` 字高 110–160（中文备用：100–150px、加粗 3 圈、错位影 6px）；四周至少露 40px 纸；日期一律 `sign_date(cv, 'OCT 20 2026', ink, 点睛色, r)`。
+- 用法：`std_fill(cv, m, red, 'body', angle=1.1)`、`std_line(cv, C, ink, 'main')`、`blob(pts, r, wobble=WOBBLE['part'])`。真要改某个数，只改一两个，并在旁边注释写原因。
+- 画完和对照卡 `examples/00_standard.png`（脚本 `works/00-standard/standard.py`）并排看：线的粗细、笔触密度、露纸多少对得上，才算同一套。
+
 ## 7. 引擎速查（`crayon_pop.py`）
 
 | 函数 | 干嘛 |
@@ -101,8 +116,10 @@
 | `crayon_line(cv, C, color, w, passes, gap)` | 粗细不一、有断口的蜡笔轮廓 |
 | `stroke_path(cv, pts, color, w)` | 开放蜡笔线（条纹、胡子、字母） |
 | `halftone(cv, mask, color, cell, angle, size_field, shift)` | Ben-Day 网点 / 错版 |
-| `text_mask(txt, cx, cy, size, rot, rng)` | 拟声词骨架（自动下载 ZCOOL KuaiLe，OFL） |
+| `hand_word(cv, txt, x, base, h, fill, ink, rng)` | 英文拟声词（首选），手画字母 |
+| `text_mask(txt, cx, cy, size, rot, rng)` | 中文拟声词骨架（备用，自动下载 ZCOOL KuaiLe，OFL） |
 | `hand_text(cv, 'OCT 19 2026', x, base, h, col, shadow, rng)` | 手写日期签（只认日期用到的字符） |
+| `std_fill` / `std_line` / `sign_date` | 按 6.5 节基准档涂色、描线、签日期 |
 
 手感旋钮：`blob` 的 `wobble`（多歪）、`crayon_fill` 的 `density` / `coverage` / `overflow` / `passes`（多密、多满、多出界、涂几遍）、`Canvas` 的 `tooth`（纸纹多粗）、`halftone` 的 `cell` / `size_field`、`shift`（错版像素）、`seed`。
 
@@ -116,6 +133,7 @@
 - 画的是动笔前构思的那一刻吗？和之前的作品构图不一样吗？
 - 有没有线压在眼睛、嘴上，或者花纹被看成了表情？
 - 有拟声词、右下角日期，四周露着奶油纸、没边框吗？
+- 和对照卡并排，线粗、笔触密度、露纸程度对得上吗？
 - 一眼认得出画的是什么吗？
 - 形体本身歪得可爱吗，还是只是边在抖？
 - 看得到一笔一笔的蜡笔，和露出来的纸吗？
