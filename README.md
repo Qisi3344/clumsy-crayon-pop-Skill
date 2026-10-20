@@ -31,7 +31,11 @@
 
 ## 系列规格
 
-960×960 正方形 · 奶油纸 `#F5EAD6` · 每张一个拟声词 · 右下角手写日期 · 不画边框
+960×960 正方形 · 奶油纸 `#F5EAD6` · 每张一个拟声词（首选英文手画字母）· 右下角手写日期 · 不画边框
+
+手感统一用引擎里的基准档（`std_fill` / `std_line` / `hand_word`，见 `SKILL.md` 6.5 节），画完和对照卡并排看：
+
+![手感基准对照卡](examples/00_standard.png)
 
 动笔前先想清楚：配色、主题、那一刻、配角、装饰、拟声词、构图（见 `SKILL.md` 第 0 节）。示例脚本改个颜色不算新作品。
 
@@ -45,6 +49,7 @@ python works/03-konbini/konbini.py 4
 python works/04-noodles/noodles.py 1
 python works/05-ring/ring.py 1
 python works/06-mwah/mwah.py 1
+python works/00-standard/standard.py   # 对照卡
 ```
 
 首次运行会自动下载拟声词用的 ZCOOL KuaiLe 字体（OFL）到 `fonts/`，字体不进仓库。
